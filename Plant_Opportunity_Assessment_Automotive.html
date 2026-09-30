@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plant Opportunity Assessment for Automotive Manufacturers | Gemba Concepts</title>
+<meta name="description" content="A 5-minute assessment for vehicle makers and auto component manufacturers. See where your plant is strong, your top three opportunities and the extra output available from your existing lines.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* #region tokens */
+:root{
+  --green:#2B7138;
+  --green-deep:#245C3A;
+  --green-ink:#173D27;
+  --mint:#EEF5F0;
+  --mint-2:#DCEADF;
+  --line:#D3E2D7;
+  --ink:#1D2A22;
+  --muted:#5B6B61;
+  --white:#FFFFFF;
+  --focus:#1F6FD1;
+  --radius-lg:14px;
+  --radius-sm:8px;
+  --font:"Poppins", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--white);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+a{color:var(--green-deep)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+/* #endregion tokens */
+
+/* #region shell */
+.topbar{border-bottom:1px solid var(--line);background:var(--white)}
+.topbar-inner{max-width:1040px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--green-ink)}
+.brand img{height:34px;width:auto;display:block}
+.brand-text{font-weight:600;font-size:18px;letter-spacing:.2px}
+.tool-name{font-size:14px;color:var(--muted)}
+main{max-width:1040px;margin:0 auto;padding:32px 24px 72px}
+/* #endregion shell */
+
+/* #region station-line (progress + results chart) */
+.line-wrap{margin:0 0 36px}
+.line{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding-top:4px}
+.line::before{content:"";position:absolute;left:calc(100%/12);right:calc(100%/12);top:21px;height:3px;background:var(--mint-2);border-radius:3px}
+.line-progress{position:absolute;left:calc(100%/12);top:21px;height:3px;background:var(--green);border-radius:3px;transition:width .45s ease}
+.station{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;z-index:1}
+.station-box{width:38px;height:38px;border-radius:9px;border:2px solid var(--mint-2);background:var(--white);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;color:var(--muted);transition:background .3s ease,border-color .3s ease,color .3s ease}
+.station.done .station-box{background:var(--green);border-color:var(--green);color:var(--white)}
+.station.current .station-box{border-color:var(--green);color:var(--green-ink);box-shadow:0 0 0 5px var(--mint)}
+.station-label{font-size:13px;line-height:1.35;color:var(--muted);max-width:120px;overflow-wrap:anywhere;hyphens:auto}
+.station.current .station-label,.station.done .station-label{color:var(--green-ink)}
+.line-caption{margin-top:14px;font-size:14px;color:var(--muted)}
+/* #endregion station-line */
+
+/* #region panels */
+.panel{max-width:760px}
+h1,h2,h3{color:var(--green-ink);line-height:1.25;margin:0}
+h1{font-size:40px;font-weight:600;letter-spacing:-.4px}
+h2{font-size:28px;font-weight:600;letter-spacing:-.2px}
+h3{font-size:19px;font-weight:600}
+.lede{font-size:18px;color:var(--ink);margin:18px 0 0;max-width:62ch}
+.note{font-size:14px;color:var(--muted)}
+.intro-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:32px 0 36px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.intro-facts div{padding:18px 20px 18px 0}
+.intro-facts div + div{padding-left:20px;border-left:1px solid var(--line)}
+.intro-facts strong{display:block;font-weight:600;color:var(--green-ink);font-size:16px}
+.intro-facts span{font-size:14px;color:var(--muted)}
+.btn-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:32px}
+.btn{appearance:none;border:2px solid var(--green);background:var(--green);color:var(--white);font-weight:500;font-size:16px;padding:13px 26px;border-radius:var(--radius-sm);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;transition:background .2s ease,border-color .2s ease}
+.btn:hover{background:var(--green-deep);border-color:var(--green-deep)}
+.btn[disabled]{background:var(--mint-2);border-color:var(--mint-2);color:var(--muted);cursor:not-allowed}
+.btn-ghost{background:var(--white);color:var(--green-deep)}
+.btn-ghost:hover{background:var(--mint);border-color:var(--green-deep)}
+.link-btn{appearance:none;background:none;border:0;padding:6px 2px;color:var(--green-deep);font-weight:500;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+/* #endregion panels */
+
+/* #region questions */
+.area-head p{margin:10px 0 0;color:var(--muted);font-size:16px}
+fieldset{border:0;margin:32px 0 0;padding:0}
+legend{font-size:18px;font-weight:500;color:var(--ink);margin-bottom:14px;padding:0}
+.options{display:grid;gap:10px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt label{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border:1.5px solid var(--line);border-radius:var(--radius-sm);cursor:pointer;background:var(--white);transition:border-color .2s ease,background .2s ease}
+.opt label:hover{border-color:var(--green)}
+.opt .dot{flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--mint-2);margin-top:3px;position:relative;transition:border-color .2s ease}
+.opt input:checked + label{border-color:var(--green);background:var(--mint)}
+.opt input:checked + label .dot{border-color:var(--green)}
+.opt input:checked + label .dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--green)}
+.opt input:focus-visible + label{outline:3px solid var(--focus);outline-offset:2px}
+.opt-text{font-size:16px;line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip label{display:inline-block;padding:9px 16px;border:1.5px solid var(--line);border-radius:999px;cursor:pointer;font-size:15px;transition:border-color .2s ease,background .2s ease}
+.chip label:hover{border-color:var(--green)}
+.chip input:checked + label{background:var(--green);border-color:var(--green);color:var(--white)}
+.chip input:focus-visible + label{outline:3px solid var(--focus);outline-offset:2px}
+.chip{position:relative}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:36px;padding-top:24px;border-top:1px solid var(--line)}
+.error-msg{color:#9B2C1C;font-size:14px;margin-top:10px;min-height:1em}
+/* #endregion questions */
+
+/* #region numbers form */
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:20px 24px;margin-top:28px}
+.field label{display:block;font-weight:500;font-size:15px;margin-bottom:6px}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:var(--white);font-size:16px}
+.field input:focus,.field select:focus{border-color:var(--green);outline:none;box-shadow:0 0 0 3px var(--mint-2)}
+.field .hint{font-size:13px;color:var(--muted);margin-top:6px}
+.field.invalid input{border-color:#9B2C1C}
+.field .ferr{font-size:13px;color:#9B2C1C;margin-top:4px}
+/* #endregion numbers form */
+
+/* #region results */
+.res-head{max-width:760px}
+.res-head .kicker{font-size:15px;color:var(--muted);margin:0 0 10px}
+.index-line{margin-top:16px;font-size:16px;color:var(--muted)}
+.index-line strong{color:var(--green-ink);font-weight:600}
+.chart{margin:40px 0 8px;border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px 24px 22px}
+.chart-title{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.legend{display:flex;gap:18px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+.sw-today{background:var(--green)}
+.sw-up{background:repeating-linear-gradient(135deg,var(--mint-2) 0 3px,var(--white) 3px 7px);border:1px solid var(--mint-2)}
+.bars{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;align-items:start}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:10px}
+.bar{position:relative;width:100%;max-width:74px;height:170px;border-radius:8px 8px 4px 4px;overflow:hidden;background:repeating-linear-gradient(135deg,var(--mint-2) 0 3px,var(--white) 3px 7px);border:1px solid var(--mint-2)}
+.bar-fill{position:absolute;left:0;right:0;bottom:0;background:var(--green);height:0;transition:height .8s cubic-bezier(.2,.7,.2,1)}
+.bar-col.top .bar{border-color:var(--green)}
+.bar-meta{text-align:center}
+.bar-name{font-size:13px;line-height:1.35;color:var(--ink);font-weight:500;overflow-wrap:anywhere;hyphens:auto}
+.bar-tag{font-size:12px;color:var(--muted)}
+.conveyor{height:3px;background:var(--mint-2);border-radius:3px;margin:0 0 12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px}
+.block{border-top:3px solid var(--green);padding-top:18px}
+.block p{margin:8px 0 0}
+.priorities{margin-top:48px}
+.priorities > p{margin:8px 0 0;color:var(--muted);max-width:62ch}
+.prio{display:grid;grid-template-columns:52px 1fr;gap:18px;padding:26px 0;border-bottom:1px solid var(--line)}
+.prio:first-of-type{border-top:1px solid var(--line);margin-top:22px}
+.prio-num{width:40px;height:40px;border-radius:9px;background:var(--green);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:600}
+.prio h3{font-size:19px}
+.prio .unlock{margin:6px 0 12px;color:var(--ink)}
+.prio ol{margin:0;padding-left:20px}
+.prio li{margin:4px 0}
+.prio .rel{margin-top:12px;font-size:14px}
+.estimate{margin-top:48px;background:var(--mint);border-radius:var(--radius-lg);padding:30px 28px}
+.est-figs{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px}
+.est-fig{background:var(--white);border-radius:var(--radius-sm);padding:18px 18px 16px}
+.est-fig .v{font-size:28px;font-weight:600;color:var(--green-ink);line-height:1.2}
+.est-fig .k{font-size:14px;color:var(--muted);margin-top:6px}
+.est-oee{margin-top:18px;font-size:15px}
+.method{margin-top:14px;font-size:13px;color:var(--muted);max-width:80ch}
+.cta{margin-top:48px;border:1px solid var(--line);border-radius:var(--radius-lg);padding:32px 28px}
+.cta p{margin:10px 0 0;max-width:62ch}
+.lead{margin-top:32px;padding-top:28px;border-top:1px solid var(--line)}
+.lead .fields{grid-template-columns:1fr 1fr}
+.thanks{background:var(--mint);border-radius:var(--radius-sm);padding:18px 20px;margin-top:20px}
+.trust{margin-top:40px;font-size:14px;color:var(--muted);max-width:80ch}
+.res-tools{display:flex;gap:18px;flex-wrap:wrap;margin-top:28px}
+/* #endregion results */
+
+/* #region responsive + motion */
+@media (max-width:760px){
+  h1{font-size:30px} h2{font-size:24px}
+  main{padding:24px 18px 56px}
+  .topbar-inner{padding:14px 18px}
+  .tool-name{display:none}
+  .intro-facts{grid-template-columns:1fr}
+  .intro-facts div + div{padding-left:0;border-left:0;border-top:1px solid var(--line)}
+  .fields,.lead .fields{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+  .est-figs{grid-template-columns:1fr}
+  .station-label{font-size:11px}
+  .station-box{width:32px;height:32px;font-size:13px}
+  .line::before,.line-progress{top:18px}
+  .bars{gap:6px}
+  .bar{height:130px}
+  .bar-name{font-size:11px}
+  .bar-tag{font-size:10.5px}
+  .chart{padding:22px 14px 18px}
+  .prio{grid-template-columns:44px 1fr;gap:12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* #endregion responsive */
+
+/* #region print */
+@media print{
+  .topbar,.nav,.cta,.res-tools,.line-wrap{display:none!important}
+  main{padding:0}
+  .bar{border:1px solid #999}
+  .estimate{background:#fff;border:1px solid #ccc}
+  .prio{break-inside:avoid}
+}
+/* #endregion print */
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="https://gembaconcepts.com" aria-label="Gemba Concepts home">
+      <img src="https://gembaconcepts.com/images/logo-v1-full.png" alt="Gemba Concepts" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+      <span class="brand-text" style="display:none">Gemba Concepts</span>
+    </a>
+    <span class="tool-name">Plant Opportunity Assessment</span>
+  </div>
+</header>
+
+<main id="main">
+  <div class="line-wrap" id="lineWrap" hidden>
+    <div class="line" id="line" role="list" aria-label="Assessment progress"></div>
+    <div class="line-caption" id="lineCaption" aria-live="polite"></div>
+  </div>
+  <div id="view"></div>
+</main>
+
+<script>
+// #region config — Vani: set these before go-live
+const CONFIG = {
+  // true = ask for contact details before showing results; false = show results first, form after
+  gateResults: false,
+  // Automotive consulting landing page, booking section
+  consultationUrl: "https://gembaconcepts.com/automotive-manufacturing-consulting-services#book",
+  // Downloadable landing page for the Auto Component Quality Improvement Checklist
+  checklistUrl: "#checklist-landing-page",
+  // Wire to the CRM / form endpoint. Receives the full payload; return a Promise.
+  // Example: onSubmit: (payload) => fetch("/api/leads", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)})
+  onSubmit: null,
+  benchmarkOEE: 85
+};
+// #endregion config
+
+// #region content
+const SEGMENTS = ["Vehicle manufacturer (OEM)", "Tier 1 supplier", "Tier 2 or Tier 3 supplier", "Contract manufacturer"];
+const PROCESSES = ["Vehicle assembly", "Machining", "Forging or casting", "Sheet metal and fabrication", "Plastics and rubber", "Electricals and wiring harness", "Mixed processes"];
+
+const AREAS = [
+  {
+    id: "flow", name: "Line flow and throughput", short: "Line flow",
+    lead: "How evenly work moves from station to station.",
+    unlocks: "More parts per shift from the same line.",
+    moves: [
+      "Time-study every station on your main line and plot each cycle time against takt time.",
+      "Move work content from the slowest station to stations with spare time.",
+      "Track bottleneck output every hour and keep it running through breaks and changeovers."
+    ],
+    questions: [
+      { q: "How closely do cycle times match across the stations on your main line?", o: [
+        "We haven't measured station-by-station cycle times yet",
+        "Measured once, but not reviewed regularly",
+        "The line is balanced, and we rebalance when models change",
+        "Balanced to takt time, with cycle times reviewed every week"
+      ]},
+      { q: "How well does your team know the line's bottleneck?", o: [
+        "It moves around, and we find it by experience",
+        "We know where it is, but it isn't managed separately",
+        "It is known and protected with buffers and priority maintenance",
+        "Known, protected, and its output is tracked every hour"
+      ]}
+    ]
+  },
+  {
+    id: "uptime", name: "Machine uptime and OEE", short: "Uptime",
+    lead: "How much good output your critical machines deliver in the time planned.",
+    unlocks: "More good parts from the machines you already own.",
+    moves: [
+      "Track OEE daily on your three to five most critical machines.",
+      "Capture stoppage reasons at the machine, as they happen, instead of at the end of the shift.",
+      "Introduce a 10-minute daily operator routine: clean, inspect, lubricate."
+    ],
+    questions: [
+      { q: "How is OEE or machine uptime tracked on your critical machines?", o: [
+        "Not tracked yet",
+        "Calculated monthly from shift reports",
+        "Tracked daily, machine by machine",
+        "Tracked live, with stoppage reasons captured as they happen"
+      ]},
+      { q: "How is maintenance planned for those machines?", o: [
+        "Mostly carried out after a breakdown",
+        "A preventive schedule exists, but it often slips",
+        "The preventive schedule is followed and operators do basic daily checks",
+        "Planned maintenance plus operator-led daily care on every critical machine"
+      ]}
+    ]
+  },
+  {
+    id: "changeover", name: "Changeovers", short: "Change\u00ADovers",
+    lead: "How quickly and predictably you switch between models, dies, tools and fixtures.",
+    unlocks: "Smaller batches, more variants and extra run time every shift.",
+    moves: [
+      "Video one changeover and separate what can be done while the machine is still running.",
+      "Pre-stage dies, tools and fixtures on a dedicated changeover trolley.",
+      "Write the best sequence as a standard and set a target time for it."
+    ],
+    questions: [
+      { q: "How standard are your changeovers?", o: [
+        "Times vary and are not recorded",
+        "Times are recorded, but each setter works their own way",
+        "A standard sequence exists and times are tracked",
+        "Standard sequence, pre-staged tooling and a target time for every changeover"
+      ]},
+      { q: "When does setup preparation happen?", o: [
+        "Tools and materials are gathered after the machine stops",
+        "Some preparation happens while the machine is still running",
+        "Most preparation is done while the previous job runs",
+        "Everything is pre-staged, so the machine stops only for the change itself"
+      ]}
+    ]
+  },
+  {
+    id: "quality", name: "First-time-right quality", short: "Quality",
+    lead: "How consistently parts are made right the first time.",
+    unlocks: "More good parts first time, steadier delivery and stronger customer ratings.",
+    moves: [
+      "Move checks for critical characteristics to the station where they are made.",
+      "Fit error-proofing wherever a known mistake could reach your customer.",
+      "Rank defects by part, machine and shift, and give each top defect an owner and a date."
+    ],
+    related: true,
+    questions: [
+      { q: "Where are quality checks carried out?", o: [
+        "Mostly at final inspection",
+        "At final inspection, plus some in-process checks",
+        "At the station, for every critical characteristic",
+        "At the station, with error-proofing wherever a mistake could reach the customer"
+      ]},
+      { q: "How are rejection and rework tracked?", o: [
+        "As a daily total",
+        "By part number",
+        "By part, defect and machine, with the top defects reviewed weekly",
+        "By part, defect, machine and shift, with an owner and target for each top defect"
+      ]}
+    ]
+  },
+  {
+    id: "material", name: "Material flow and inventory", short: "Material",
+    lead: "How smoothly parts and material reach the line.",
+    unlocks: "Steady lines, less searching and working capital freed up.",
+    moves: [
+      "Set fixed line-side locations and quantities for every part.",
+      "Link replenishment to actual consumption with kanban or a milk-run route.",
+      "Set inventory norms against real consumption and supplier lead times."
+    ],
+    questions: [
+      { q: "How does material reach the line?", o: [
+        "Operators or supervisors fetch it when they run short",
+        "Delivered on a fixed schedule, with occasional waits",
+        "Delivered to marked line-side locations in set quantities",
+        "Replenished on a pull system, such as kanban or milk runs, linked to actual consumption"
+      ]},
+      { q: "How are inventory levels set for raw material, work in progress and finished goods?", o: [
+        "Based on experience",
+        "Minimum levels are set for some items",
+        "Norms are set for key items and reviewed monthly",
+        "Norms for every item, linked to consumption and supplier lead times"
+      ]}
+    ]
+  },
+  {
+    id: "people", name: "People and standard work", short: "People",
+    lead: "How clearly work is defined and how skills are built.",
+    unlocks: "Consistent output across operators, shifts and plants.",
+    moves: [
+      "Put visual work instructions at every station, with the key quality points marked.",
+      "Build a skill matrix for each line and use it for daily deployment.",
+      "Start a short daily leader walk to confirm standards are followed."
+    ],
+    questions: [
+      { q: "How is the work at each station defined?", o: [
+        "Operators learn from each other on the job",
+        "Written instructions exist, but they aren't used at the station",
+        "Visual instructions are in place at every station",
+        "Visual standard work at every station, checked by leaders regularly"
+      ]},
+      { q: "How are operator skills managed?", o: [
+        "Informally, by supervisor judgement",
+        "Training records are kept",
+        "A skill matrix is maintained for each line",
+        "The skill matrix drives daily deployment, with multi-skilling targets"
+      ]}
+    ]
+  }
+];
+// #endregion content
+
+// #region state
+const STEPS = ["intro", "profile", "area-0", "area-1", "area-2", "area-3", "area-4", "area-5", "numbers", "gate", "results"];
+const state = {
+  step: "intro",
+  profile: { segment: "", process: "" },
+  answers: {},          // key "areaIdx-qIdx" -> 0..3
+  numbers: { oee: "", hours: "", pph: "", price: "" },
+  lead: null,
+  submitted: false
+};
+const view = document.getElementById("view");
+const lineWrap = document.getElementById("lineWrap");
+const lineEl = document.getElementById("line");
+const lineCaption = document.getElementById("lineCaption");
+// #endregion state
+
+// #region helpers
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtInt = n => new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(Math.round(n));
+const fmtINR = n => {
+  if (n >= 1e7) return "₹" + (n / 1e7).toFixed(2) + " Cr";
+  if (n >= 1e5) return "₹" + (n / 1e5).toFixed(2) + " lakh";
+  return "₹" + fmtInt(n);
+};
+function go(step){
+  state.step = step;
+  render();
+  window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  const h = view.querySelector("h1, h2");
+  if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+}
+function nextStep(){
+  let i = STEPS.indexOf(state.step) + 1;
+  if (STEPS[i] === "gate" && !CONFIG.gateResults) i++;
+  go(STEPS[i]);
+}
+function prevStep(){
+  let i = STEPS.indexOf(state.step) - 1;
+  if (STEPS[i] === "gate") i--;
+  go(STEPS[i]);
+}
+function utm(){
+  const p = new URLSearchParams(location.search), o = {};
+  ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","gclid","li_fat_id"].forEach(k => { if (p.get(k)) o[k] = p.get(k); });
+  return o;
+}
+// #endregion helpers
+
+// #region scoring
+function score(){
+  const areas = AREAS.map((a, ai) => {
+    const pts = a.questions.reduce((s, _, qi) => s + (state.answers[ai + "-" + qi] ?? 0), 0);
+    const maturity = Math.round(pts / (a.questions.length * 3) * 100);
+    return { ...a, idx: ai, maturity, headroom: 100 - maturity };
+  });
+  const index = Math.round(areas.reduce((s, a) => s + a.headroom, 0) / areas.length);
+  const byHeadroom = [...areas].sort((x, y) => y.headroom - x.headroom || x.idx - y.idx);
+  const strongest = [...areas].sort((x, y) => y.maturity - x.maturity || x.idx - y.idx)[0];
+  return { areas, index, top3: byHeadroom.slice(0, 3), strongest };
+}
+function band(index){
+  if (index >= 60) return { label: "High opportunity", line: "Your existing lines have significant room to deliver more. A few focused changes in your top three areas can move the daily numbers." };
+  if (index >= 35) return { label: "Clear opportunity", line: "You have good foundations and clear areas to unlock. Focused work on your top three areas will show up in output and quality." };
+  return { label: "Fine-tuning opportunity", line: "Your plant runs on strong practices. The next gains come from consistency across shifts and taking your standards to new lines and plants." };
+}
+function tag(m){ return m >= 75 ? "Strong" : m >= 45 ? "Building" : "Big upside"; }
+function estimate(index){
+  const n = state.numbers;
+  const oee = parseFloat(n.oee), hours = parseFloat(n.hours), pph = parseFloat(n.pph), price = parseFloat(n.price);
+  if (!(oee > 0 && hours > 0 && pph > 0)) return null;
+  const bench = CONFIG.benchmarkOEE;
+  if (oee >= bench) return { atBenchmark: true, oee };
+  const closure = 0.25 + 0.20 * (index / 100);
+  const target = oee + (bench - oee) * closure;
+  const factor = target / oee - 1;
+  const monthlyParts = pph * hours;
+  const extraParts = monthlyParts * factor;
+  const extraHours = hours * factor;
+  const value = price > 0 ? extraParts * price : null;
+  return { oee, target, closure, extraParts, extraHours, value };
+}
+// #endregion scoring
+
+// #region station line
+function renderLine(){
+  const onArea = state.step.startsWith("area-");
+  const show = onArea || ["intro", "profile", "numbers", "gate"].includes(state.step);
+  lineWrap.hidden = !show;
+  if (!show) return;
+  const cur = onArea ? parseInt(state.step.split("-")[1], 10) : (["intro", "profile"].includes(state.step) ? -1 : 6);
+  lineEl.innerHTML = '<div class="line-progress" style="width:calc((100% - 100%/6) * ' + Math.max(0, Math.min(cur, 5)) / 5 + ')"></div>' +
+    AREAS.map((a, i) => {
+      const cls = i < cur ? "done" : i === cur ? "current" : "";
+      return '<div class="station ' + cls + '" role="listitem" aria-current="' + (i === cur ? "step" : "false") + '">' +
+        '<div class="station-box">' + (i + 1) + '</div><div class="station-label">' + esc(a.short) + '</div></div>';
+    }).join("");
+  lineCaption.textContent = onArea ? "Area " + (cur + 1) + " of 6"
+    : state.step === "intro" ? "Six areas of your shop floor, assessed like stations on a line"
+    : state.step === "profile" ? "Before you start: your plant"
+    : "All six areas done";
+}
+// #endregion station line
+
+// #region views
+function vIntro(){
+  return '<section class="panel">' +
+    '<h1>See where your plant\u2019s next gain in output sits</h1>' +
+    '<p class="lede">Twelve quick questions across six areas of your shop floor. You\u2019ll see where your plant is already strong, your top three opportunities and, if you add a few numbers, the extra output available from the lines you already run.</p>' +
+    '<div class="intro-facts">' +
+      '<div><strong>About 5 minutes</strong><span>No login, no preparation</span></div>' +
+      '<div><strong>Six shop-floor areas</strong><span>Flow, uptime, changeovers, quality, material, people</span></div>' +
+      '<div><strong>Built for automotive</strong><span>Vehicle makers and auto component manufacturers</span></div>' +
+    '</div>' +
+    '<button class="btn" id="startBtn">Start the assessment</button>' +
+    '<p class="trust">Built by Gemba Concepts. Trusted by 500+ manufacturers across three continents, with 1M+ consulting hours delivered on the shop floor.</p>' +
+  '</section>';
+}
+function chipGroup(name, list, val){
+  return '<div class="chips">' + list.map((t, i) => {
+    const id = name + "-" + i;
+    return '<span class="chip"><input type="radio" name="' + name + '" id="' + id + '" value="' + esc(t) + '"' + (val === t ? " checked" : "") + '><label for="' + id + '">' + esc(t) + '</label></span>';
+  }).join("") + '</div>';
+}
+function vProfile(){
+  return '<section class="panel">' +
+    '<h2>First, a little about your plant</h2>' +
+    '<p class="lede">This helps us read your answers in context. Both are optional.</p>' +
+    '<fieldset><legend>Which best describes your business?</legend>' + chipGroup("segment", SEGMENTS, state.profile.segment) + '</fieldset>' +
+    '<fieldset><legend>What is the main process at this plant?</legend>' + chipGroup("process", PROCESSES, state.profile.process) + '</fieldset>' +
+    '<div class="nav"><button class="link-btn" id="backBtn">Back</button><button class="btn" id="nextBtn">Continue</button></div>' +
+  '</section>';
+}
+function vArea(ai){
+  const a = AREAS[ai];
+  const qs = a.questions.map((q, qi) => {
+    const key = ai + "-" + qi, name = "q" + key;
+    return '<fieldset><legend>' + esc(q.q) + '</legend><div class="options">' +
+      q.o.map((t, oi) => {
+        const id = name + "-" + oi;
+        return '<div class="opt"><input type="radio" name="' + name + '" id="' + id + '" value="' + oi + '"' + (state.answers[key] === oi ? " checked" : "") + '>' +
+          '<label for="' + id + '"><span class="dot" aria-hidden="true"></span><span class="opt-text">' + esc(t) + '</span></label></div>';
+      }).join("") + '</div></fieldset>';
+  }).join("");
+  const last = ai === AREAS.length - 1;
+  return '<section class="panel">' +
+    '<div class="area-head"><h2>' + esc(a.name) + '</h2><p>' + esc(a.lead) + '</p></div>' + qs +
+    '<p class="error-msg" id="err" role="alert"></p>' +
+    '<div class="nav"><button class="link-btn" id="backBtn">Back</button><button class="btn" id="nextBtn">' + (last ? "Continue" : "Next area") + '</button></div>' +
+  '</section>';
+}
+function field(id, label, hint, val, opts){
+  opts = opts || {};
+  return '<div class="field" id="f-' + id + '"><label for="' + id + '">' + esc(label) + '</label>' +
+    '<input id="' + id + '" name="' + id + '" type="' + (opts.type || "number") + '" inputmode="' + (opts.mode || "decimal") + '"' +
+    (opts.min !== undefined ? ' min="' + opts.min + '"' : "") + (opts.max !== undefined ? ' max="' + opts.max + '"' : "") +
+    (opts.auto ? ' autocomplete="' + opts.auto + '"' : "") + (opts.req ? " required" : "") +
+    ' value="' + esc(val || "") + '"' + (opts.ph ? ' placeholder="' + esc(opts.ph) + '"' : "") + '>' +
+    (hint ? '<div class="hint">' + esc(hint) + '</div>' : "") + '<div class="ferr" aria-live="polite"></div></div>';
+}
+function vNumbers(){
+  const n = state.numbers;
+  return '<section class="panel">' +
+    '<h2>Want to see it in output terms?</h2>' +
+    '<p class="lede">Add a few numbers from your key line or bottleneck machine. Rough figures are fine. Skip this step if you\u2019d rather see your profile first.</p>' +
+    '<div class="fields">' +
+      field("oee", "Current OEE on this line or machine (%)", "If you don\u2019t track OEE yet, use your best estimate.", n.oee, { min: 10, max: 95, ph: "e.g. 58" }) +
+      field("hours", "Planned production hours per month", "For example, 2 shifts of 8 hours over 26 days is 416 hours.", n.hours, { min: 1, max: 744, ph: "e.g. 416" }) +
+      field("pph", "Good parts per hour today", "Average across a normal shift.", n.pph, { min: 0.1, ph: "e.g. 120" }) +
+      field("price", "Average selling price per part (\u20B9)", "Optional. Used to show an indicative value.", n.price, { min: 0, ph: "e.g. 350" }) +
+    '</div>' +
+    '<div class="nav"><button class="link-btn" id="backBtn">Back</button>' +
+      '<div class="btn-row" style="margin:0"><button class="link-btn" id="skipBtn">Skip this step</button><button class="btn" id="nextBtn">See my results</button></div></div>' +
+  '</section>';
+}
+function leadFields(){
+  const l = state.lead || {};
+  return '<div class="fields">' +
+    field("fullname", "Full name", "", l.fullname, { type: "text", mode: "text", auto: "name", req: true }) +
+    field("email", "Work email", "", l.email, { type: "email", mode: "email", auto: "email", req: true }) +
+    field("company", "Company", "", l.company, { type: "text", mode: "text", auto: "organization", req: true }) +
+    field("designation", "Designation", "", l.designation, { type: "text", mode: "text", auto: "organization-title", req: true }) +
+    field("phone", "Phone number", "", l.phone, { type: "tel", mode: "tel", auto: "tel", req: true }) +
+  '</div>';
+}
+function vGate(){
+  return '<section class="panel">' +
+    '<h2>Your results are ready</h2>' +
+    '<p class="lede">Tell us where to send them. You\u2019ll see your full profile on the next screen, and a copy comes to your inbox.</p>' +
+    '<form id="leadForm" novalidate>' + leadFields() +
+    '<p class="error-msg" id="err" role="alert"></p>' +
+    '<div class="nav"><button type="button" class="link-btn" id="backBtn">Back</button><button type="submit" class="btn">Show my results</button></div></form>' +
+  '</section>';
+}
+function vResults(){
+  const s = score(), b = band(s.index), est = estimate(s.index);
+  const proc = state.profile.process ? state.profile.process.charAt(0).toLowerCase() + state.profile.process.slice(1) : "";
+  const ctx = [state.profile.segment, proc].filter(Boolean).join(", ");
+  const bars = s.areas.map(a => {
+    const isTop = s.top3.some(t => t.idx === a.idx);
+    return '<div class="bar-col' + (isTop ? " top" : "") + '">' +
+      '<div class="bar" role="img" aria-label="' + esc(a.name) + ': ' + a.maturity + ' percent in place today, ' + a.headroom + ' percent upside"><div class="bar-fill" data-h="' + a.maturity + '"></div></div>' +
+      '<div class="bar-meta"><div class="bar-name">' + esc(a.short) + '</div><div class="bar-tag">' + tag(a.maturity) + '</div></div></div>';
+  }).join("");
+  const prios = s.top3.map((a, i) =>
+    '<div class="prio"><div class="prio-num" aria-hidden="true">' + (i + 1) + '</div><div>' +
+      '<h3>' + esc(a.name) + '</h3><p class="unlock">What it unlocks: ' + esc(a.unlocks) + '</p>' +
+      '<p class="note" style="margin:0 0 6px">First moves</p><ol>' + a.moves.map(m => '<li>' + esc(m) + '</li>').join("") + '</ol>' +
+      (a.related ? '<p class="rel">Go deeper with the free <a href="' + esc(CONFIG.checklistUrl) + '">Auto Component Quality Improvement Checklist</a>: 30 practical checks from incoming material to dispatch.</p>' : "") +
+    '</div></div>').join("");
+  let estHTML = "";
+  if (est && est.atBenchmark) {
+    estHTML = '<section class="estimate"><h3>Your key line in output terms</h3><p style="margin:10px 0 0">At ' + fmtInt(est.oee) + '% OEE, this line is already at or above the ' + CONFIG.benchmarkOEE + '% benchmark. Your upside sits in taking the same standard to other lines and plants.</p></section>';
+  } else if (est) {
+    estHTML = '<section class="estimate"><h3>Your key line in output terms</h3>' +
+      '<div class="est-figs">' +
+        '<div class="est-fig"><div class="v">' + fmtInt(est.extraParts) + '</div><div class="k">extra good parts a month</div></div>' +
+        '<div class="est-fig"><div class="v">' + fmtInt(est.extraHours) + ' hrs</div><div class="k">of production time gained each month, without an extra shift</div></div>' +
+        '<div class="est-fig"><div class="v">' + (est.value !== null ? fmtINR(est.value) : "Add a price") + '</div><div class="k">' + (est.value !== null ? "indicative value of that output each month" : "Add an average price per part to see the value") + '</div></div>' +
+      '</div>' +
+      '<p class="est-oee">OEE today: <strong>' + est.oee.toFixed(0) + '%</strong>. First-phase target: <strong>' + est.target.toFixed(1) + '%</strong>.</p>' +
+      '<p class="method">Indicative only. This estimate assumes a first improvement phase closes ' + Math.round(est.closure * 100) + '% of the gap between your current OEE and an ' + CONFIG.benchmarkOEE + '% benchmark, scaled to your answers. A 2 to 4 day on-site study replaces it with your plant\u2019s measured baseline.</p>' +
+    '</section>';
+  }
+  const leadBlock = CONFIG.gateResults ? "" :
+    (state.submitted
+      ? '<div class="thanks" role="status">Thank you' + (state.lead && state.lead.fullname ? ", " + esc(state.lead.fullname.split(" ")[0]) : "") + '. Your results are on their way, and a consultant will reach out within 24 hours.</div>'
+      : '<div class="lead"><h3>Get these results by email</h3><p class="note" style="margin-top:6px">We\u2019ll send your profile and first moves, and a consultant will follow up to answer questions.</p>' +
+        '<form id="leadForm" novalidate>' + leadFields() + '<p class="error-msg" id="err" role="alert"></p><div class="btn-row" style="margin-top:20px"><button type="submit" class="btn">Send my results</button></div></form></div>');
+  return '<section>' +
+    '<div class="res-head"><p class="kicker">Your Plant Opportunity Profile' + (ctx ? ": " + esc(ctx) : "") + '</p>' +
+      '<h1>' + esc(b.label) + '</h1>' +
+      '<p class="lede">' + esc(b.line) + '</p>' +
+      '<p class="index-line">Opportunity index: <strong>' + s.index + ' of 100</strong>. The higher the index, the more extra output is available from your existing setup.</p></div>' +
+    '<div class="chart"><div class="chart-title"><h3>Your six areas</h3><div class="legend"><span><i class="sw sw-today"></i>In place today</span><span><i class="sw sw-up"></i>Upside available</span></div></div>' +
+      '<div class="bars">' + bars + '</div></div>' +
+    '<div class="grid-2"><div class="block"><h3>Already strong</h3><p><strong>' + esc(s.strongest.name) + '.</strong> Keep this standard and use it as the model for your other areas.</p></div></div>' +
+    '<section class="priorities"><h2>Your top three opportunities</h2><p>In order of upside, with the first moves your team can make this month.</p>' + prios + '</section>' +
+    estHTML +
+    '<section class="cta"><h2>Turn this into a plan for your plant</h2>' +
+      '<p>A focused 30-minute conversation with a senior Gemba consultant, specific to your lines, your parts and your product mix. No commitment.</p>' +
+      '<div class="btn-row"><a class="btn" href="' + esc(CONFIG.consultationUrl) + '">Book a 30-minute walkthrough</a><a class="btn btn-ghost" href="' + esc(CONFIG.checklistUrl) + '">Download the Quality Checklist</a></div>' +
+      leadBlock +
+    '</section>' +
+    '<div class="res-tools"><button class="link-btn" id="printBtn">Save results as PDF</button><button class="link-btn" id="restartBtn">Start again</button></div>' +
+    '<p class="trust">Gemba Concepts: former Toyota professionals working full-time on your shop floor. Trusted by 500+ manufacturers across three continents, with 1M+ consulting hours and 12+ years of shop-floor execution.</p>' +
+  '</section>';
+}
+// #endregion views
+
+// #region render + bind
+function render(){
+  renderLine();
+  const st = state.step;
+  if (st === "intro") view.innerHTML = vIntro();
+  else if (st === "profile") view.innerHTML = vProfile();
+  else if (st.startsWith("area-")) view.innerHTML = vArea(parseInt(st.split("-")[1], 10));
+  else if (st === "numbers") view.innerHTML = vNumbers();
+  else if (st === "gate") view.innerHTML = vGate();
+  else if (st === "results") view.innerHTML = vResults();
+  bind();
+}
+function readLead(){
+  const ids = ["fullname", "email", "company", "designation", "phone"], data = {};
+  let ok = true;
+  ids.forEach(id => {
+    const inp = document.getElementById(id), f = document.getElementById("f-" + id), v = inp.value.trim();
+    data[id] = v;
+    let msg = "";
+    if (!v) msg = "Please fill this in.";
+    else if (id === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) msg = "Enter a valid work email.";
+    else if (id === "phone" && v.replace(/\D/g, "").length < 8) msg = "Enter a phone number with at least 8 digits.";
+    f.classList.toggle("invalid", !!msg);
+    f.querySelector(".ferr").textContent = msg;
+    if (msg) ok = false;
+  });
+  return ok ? data : null;
+}
+function payload(){
+  const s = score(), est = estimate(s.index);
+  return {
+    tool: "plant-opportunity-assessment-automotive",
+    submittedAt: new Date().toISOString(),
+    lead: state.lead,
+    profile: state.profile,
+    answers: AREAS.map((a, ai) => ({ area: a.name, responses: a.questions.map((q, qi) => ({ question: q.q, answer: q.o[state.answers[ai + "-" + qi]], score: state.answers[ai + "-" + qi] })) })),
+    result: { opportunityIndex: s.index, band: band(s.index).label, strongest: s.strongest.name, top3: s.top3.map(a => a.name), areas: s.areas.map(a => ({ area: a.name, inPlace: a.maturity, upside: a.headroom })) },
+    numbers: state.numbers,
+    estimate: est,
+    tracking: utm(),
+    page: location.href
+  };
+}
+function submitLead(then){
+  const data = readLead();
+  const err = document.getElementById("err");
+  if (!data) { err.textContent = "Please complete the highlighted fields."; return; }
+  err.textContent = "";
+  state.lead = data;
+  const p = payload();
+  const done = () => { state.submitted = true; then(); };
+  if (typeof CONFIG.onSubmit === "function") {
+    Promise.resolve(CONFIG.onSubmit(p)).then(done).catch(() => { err.textContent = "We couldn\u2019t send your details. Check your connection and try again."; });
+  } else {
+    console.log("[Plant Opportunity Assessment] lead payload", p);
+    done();
+  }
+}
+function bind(){
+  const $ = id => document.getElementById(id);
+  if ($("startBtn")) $("startBtn").onclick = () => go("profile");
+  if ($("backBtn")) $("backBtn").onclick = () => prevStep();
+  const st = state.step;
+  if (st === "profile") {
+    view.querySelectorAll('input[name="segment"]').forEach(r => r.onchange = () => state.profile.segment = r.value);
+    view.querySelectorAll('input[name="process"]').forEach(r => r.onchange = () => state.profile.process = r.value);
+    $("nextBtn").onclick = () => nextStep();
+  }
+  if (st.startsWith("area-")) {
+    const ai = parseInt(st.split("-")[1], 10);
+    view.querySelectorAll('input[type="radio"]').forEach(r => r.onchange = () => {
+      const key = r.name.slice(1);
+      state.answers[key] = parseInt(r.value, 10);
+      $("err").textContent = "";
+    });
+    $("nextBtn").onclick = () => {
+      const missing = AREAS[ai].questions.some((_, qi) => state.answers[ai + "-" + qi] === undefined);
+      if (missing) { $("err").textContent = "Choose an answer for both questions to continue."; return; }
+      nextStep();
+    };
+  }
+  if (st === "numbers") {
+    const save = () => ["oee", "hours", "pph", "price"].forEach(k => state.numbers[k] = $(k).value.trim());
+    const validate = () => {
+      const rules = { oee: [10, 95, "Enter an OEE between 10 and 95."], hours: [1, 744, "Enter hours between 1 and 744."], pph: [0.1, 1e9, "Enter parts per hour above zero."], price: [0, 1e12, "Enter a price of zero or more."] };
+      let ok = true;
+      Object.keys(rules).forEach(k => {
+        const v = $(k).value.trim(), f = $("f-" + k), [mn, mx, msg] = rules[k];
+        const bad = v !== "" && (isNaN(parseFloat(v)) || parseFloat(v) < mn || parseFloat(v) > mx);
+        f.classList.toggle("invalid", bad); f.querySelector(".ferr").textContent = bad ? msg : "";
+        if (bad) ok = false;
+      });
+      return ok;
+    };
+    $("nextBtn").onclick = () => { if (!validate()) return; save(); nextStep(); };
+    $("skipBtn").onclick = () => { state.numbers = { oee: "", hours: "", pph: "", price: "" }; nextStep(); };
+  }
+  if (st === "gate") {
+    $("leadForm").onsubmit = e => { e.preventDefault(); submitLead(() => go("results")); };
+  }
+  if (st === "results") {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      view.querySelectorAll(".bar-fill").forEach(el => el.style.height = el.dataset.h + "%");
+    }));
+    if ($("leadForm")) $("leadForm").onsubmit = e => { e.preventDefault(); submitLead(() => render()); };
+    $("printBtn").onclick = () => window.print();
+    $("restartBtn").onclick = () => { state.answers = {}; state.profile = { segment: "", process: "" }; state.numbers = { oee: "", hours: "", pph: "", price: "" }; state.submitted = false; go("intro"); };
+  }
+}
+render();
+// #endregion render + bind
+</script>
+</body>
+</html>
